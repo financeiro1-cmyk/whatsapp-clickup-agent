@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+cloudflared
+cloudflared.tgz
+tunnel.log
+server.log
