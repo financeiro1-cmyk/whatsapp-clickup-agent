@@ -5,6 +5,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from dotenv import load_dotenv
 
 import clickup_map
+import document_index
 
 load_dotenv()
 
@@ -45,6 +46,17 @@ def whatsapp_webhook():
 
     if not incoming_msg:
         resp.message("Não recebi nenhum texto. Manda a demanda descrevendo empresa + área + o que precisa.")
+        return str(resp)
+
+    text_norm = clickup_map.normalize(incoming_msg)
+    company_key = clickup_map.find_company(text_norm)
+
+    if company_key and document_index.is_document_request(text_norm):
+        doc_result = document_index.find_document(company_key, text_norm)
+        if doc_result["ok"]:
+            resp.message(f"{doc_result['descricao']}:\n{doc_result['link']}")
+        else:
+            resp.message(f"Não consegui enviar o documento: {doc_result['reason']}")
         return str(resp)
 
     result = clickup_map.resolve(incoming_msg)
