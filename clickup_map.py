@@ -21,11 +21,10 @@ COMPANIES = {
         },
     },
     "smart ventures": {
-        "aliases": ["smart ventures", "sv", "s ventures", "smart"],
+        "aliases": ["smart ventures", "sv", "s ventures"],
         "areas": {
             "comunicacao": {"aliases": ["comunicacao", "comunicaçao"], "list_id": "901113663252"},
             "comercial": {"aliases": ["comercial"], "list_id": "901113663284"},
-            "automacao": {"aliases": ["automacao", "automação"], "list_id": "901113663303"},
             "engenharia": {"aliases": ["engenharia"], "list_id": "901113663341"},
             "financeiro": {"aliases": ["financeiro"], "list_id": "901113745198"},
             "design": {"aliases": ["design", "criacao", "criação"], "list_id": "901113749450"},
@@ -95,20 +94,28 @@ HIGH_KEYWORDS = ["importante", "prioridade alta", "alta prioridade"]
 
 
 def find_company(text_norm):
+    candidates = []
     for key, data in COMPANIES.items():
         for alias in data["aliases"]:
             if alias in text_norm:
-                return key
-    return None
+                candidates.append((len(alias), key))
+    if not candidates:
+        return None
+    candidates.sort(reverse=True)
+    return candidates[0][1]
 
 
 def find_area(text_norm, company_key):
     areas = COMPANIES[company_key]["areas"]
+    candidates = []
     for area_key, data in areas.items():
         for alias in data["aliases"]:
             if alias in text_norm:
-                return area_key
-    return None
+                candidates.append((len(alias), area_key))
+    if not candidates:
+        return None
+    candidates.sort(reverse=True)
+    return candidates[0][1]
 
 
 def detect_priority(text_norm):
