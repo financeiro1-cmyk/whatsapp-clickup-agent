@@ -50,21 +50,18 @@ def whatsapp_webhook():
 
     text_norm = clickup_map.normalize(incoming_msg)
     company_key = clickup_map.find_company(text_norm)
-
-    if company_key and document_index.is_document_request(text_norm):
-        doc_result = document_index.find_document(company_key, text_norm)
-        if doc_result["ok"]:
-            resp.message(f"{doc_result['descricao']}:\n{doc_result['link']}")
-        else:
-            resp.message(f"Não consegui enviar o documento: {doc_result['reason']}")
-        return str(resp)
-
     result = clickup_map.resolve(incoming_msg)
 
     if not result["ok"]:
+        doc_result = document_index.find_document(company_key, text_norm) if company_key else None
+        if doc_result and doc_result["ok"]:
+            resp.message(f"{doc_result['descricao']}:\n{doc_result['link']}")
+            return str(resp)
+
         resp.message(
-            f"Não consegui identificar {result['reason']}. "
-            f"Manda de novo citando a empresa e a área, ex: \"Villa Lisboa financeiro: ...\""
+            f"Não consegui identificar {result['reason']}, nem achar um documento correspondente. "
+            f"Manda de novo citando a empresa e a área (ex: \"Villa Lisboa financeiro: ...\") "
+            f"ou o nome do documento (ex: \"apresentação Smart Ventures\")."
         )
         return str(resp)
 
